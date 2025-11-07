@@ -1,0 +1,71 @@
+-- Exploratory Data Analysis
+
+
+Select *
+From layoffs_cleaning_2
+;
+
+
+-- Top 10 Highest Layoffs by company
+
+Select company, sum(total_laid_off) as `company_layoffs`
+From layoffs_cleaning_2
+Group by company
+Order by `company_layoffs` desc
+Limit 10
+;
+
+
+-- Top 10 Highest Layoffs by industry
+
+Select industry, sum(total_laid_off) as industry_layoffs
+From layoffs_cleaning_2
+Group by industry
+Order by industry_layoffs desc
+Limit 10
+;
+
+
+-- Top 10 Highest Layoffs by country
+
+Select country, sum(total_laid_off) as country_layoffs
+From layoffs_cleaning_2
+Group by country
+Order by country_layoffs desc
+Limit 10
+;
+
+
+-- Layoffs Trend by month
+
+Select concat(year(`date`),'-', substring(`date`,6,2)) as `year_month`, sum(total_laid_off)
+From layoffs_cleaning_2
+Group by `year_month`
+Order by `year_month`
+;
+
+
+-- Layoffs by company per year
+
+Select company, year(`date`) as `year`, sum(total_laid_off) as laid_offs
+From layoffs_cleaning_2
+Group by `year`, company
+Order by company, `year`
+;
+
+
+-- Top 5 companies by total layoffs per year
+
+With top5 as
+(
+Select company, year(`date`), sum(total_laid_off), rank() over (partition by year(`date`) order by sum(total_laid_off) desc) as ranking
+From layoffs_cleaning_2
+Group by company, year(`date`)
+Order by year(`date`), sum(total_laid_off) desc
+)
+
+Select *
+From top5
+Where ranking <= 5
+;
+
